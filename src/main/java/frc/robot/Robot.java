@@ -52,10 +52,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    if (timer.get() % 0.33 >= 0.16) {
+    // if (timer.get() > 10 && timer.get() < 11) {
+    //   m_robotDrive.arcadeDrive(0.1, 0);
+    // }
+    if (timer.get() % 1.0 <= 0.5 && timer.advanceIfElapsed(5)) {
       m_doubleSolenoid.set(Value.kForward);
     }
-    else {
+    else if (timer.advanceIfElapsed(5)) {
       m_doubleSolenoid.set(Value.kReverse);
     }
   }
