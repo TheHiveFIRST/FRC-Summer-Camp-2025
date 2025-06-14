@@ -64,7 +64,7 @@ public class Robot extends TimedRobot {
       if (m_controller.getAButtonPressed()) {
         m_doubleSolenoid.set(Value.kForward);
       } 
-      else if (m_controller.getAButtonReleased()) {
+      else if (m_controller.getBButtonPressed()) {
         m_doubleSolenoid.set(Value.kReverse);
       }
       else {
