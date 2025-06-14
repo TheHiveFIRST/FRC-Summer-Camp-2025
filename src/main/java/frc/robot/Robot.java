@@ -1,6 +1,5 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import edu.wpi.first.util.sendable.SendableRegistry;
@@ -13,11 +12,16 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode; // Corrected path
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 public class Robot extends TimedRobot {
+  private final DoubleSolenoid m_doubleSolenoid;
+  
   private final SparkMax m_leftMotor1 = new SparkMax(1, MotorType.kBrushed);
   private final SparkMax m_leftMotor2 = new SparkMax(2, MotorType.kBrushed);
   private final SparkMax m_rightMotor3 = new SparkMax(3, MotorType.kBrushed);
@@ -39,6 +43,7 @@ public class Robot extends TimedRobot {
 
     m_robotDrive = new DifferentialDrive(m_leftMotor2::set, m_rightMotor4::set);
     m_controller = new XboxController(0);
+    m_doubleSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);
 
     SendableRegistry.addChild(m_robotDrive, m_leftMotor2);
     SendableRegistry.addChild(m_robotDrive, m_rightMotor4);
@@ -48,6 +53,23 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     // Steer with left stick, throttle with triggers.
     // Right trigger moves forward, left trigger moves backward.
+
+    controlSolenoid();
+    
     m_robotDrive.arcadeDrive(-m_controller.getLeftX(), m_controller.getRightTriggerAxis() - m_controller.getLeftTriggerAxis());
+    
+    }
+
+    private void controlSolenoid() {
+      if (m_controller.getAButtonPressed()) {
+        m_doubleSolenoid.set(Value.kForward);
+      } 
+      else if (m_controller.getAButtonReleased()) {
+        m_doubleSolenoid.set(Value.kReverse);
+      }
+      else {
+        m_doubleSolenoid.set(Value.kOff);
+      }
     }
 }
+
