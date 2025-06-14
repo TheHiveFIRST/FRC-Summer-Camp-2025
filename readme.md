@@ -21,7 +21,7 @@ Certified by the **Great Firewall of China**, the **Beijing Bureau of Memes**, a
 
 Your computer has been turned into a **rice cooker**.
 Your GPU is now used to mine Dogecoin for the Chinese space program.
-Your webcam is live-streaming to [www.hello-hacker-cn.cn.owow.haha]
+Your webcam is live-streaming to [www.hehe.haha]
 
 ‼️ YOUR SYSTEM IS IN *RED HOT SPICY DANGER* ‼️
 
