@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Timer;
 
+
 public class Robot extends TimedRobot {
   private final Timer timer = new Timer();
   private final XboxController m_controller = new XboxController(0);
@@ -35,6 +36,7 @@ public class Robot extends TimedRobot {
   private final SparkMaxConfig rightConfig = new SparkMaxConfig();
 
   private final DifferentialDrive m_robotDrive;
+  private boolean isAutonomousRan = false; 
 
   /** Called once at the beginning of the robot program. */
   public Robot() {
@@ -49,18 +51,22 @@ public class Robot extends TimedRobot {
     SendableRegistry.addChild(m_robotDrive, m_leftMotor2);
     SendableRegistry.addChild(m_robotDrive, m_rightMotor4);
   }
-
+  @Override
+  public void autonomousInit() {
+    timer.reset();
+    timer.start();
+  }
   @Override
   public void autonomousPeriodic() {
-    // if (timer.get() > 10 && timer.get() < 11) {
-    //   m_robotDrive.arcadeDrive(0.1, 0);
-    // }
-    if (timer.get() % 1.0 <= 0.5 && timer.advanceIfElapsed(5)) {
-      m_doubleSolenoid.set(Value.kForward);
+    if(!isAutonomousRan){
+      m_rightMotor4.set(0.3);
+      m_leftMotor2.set(0.3);
+      Timer.delay(3.0);
+      m_rightMotor4.set(0.0);
+      m_leftMotor2.set(0.0);
+      isAutonomousRan = true;
     }
-    else if (timer.advanceIfElapsed(5)) {
-      m_doubleSolenoid.set(Value.kReverse);
-    }
+    
   }
 
   @Override
