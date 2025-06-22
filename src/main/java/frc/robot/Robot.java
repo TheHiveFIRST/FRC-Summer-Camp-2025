@@ -4,13 +4,7 @@ package frc.robot;
 
 import edu.wpi.first.util.sendable.SendableRegistry;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-// NEW IMPORTS FOR REVLIB 2025 - CORRECTED PATHS FOR ENUMS
 import com.revrobotics.spark.SparkMax;
-// Corrected import paths for IdleMode, ResetMode, PersistMode
-// import com.revrobotics.spark.SparkBase.PersistMode; // This one still seems to be directly under SparkBase for now based on docs/examples
-// import com.revrobotics.spark.SparkBase.ResetMode; // This one still seems to be directly under SparkBase for now based on docs/examples
-// import com.revrobotics.spark.config.SparkBaseConfig.IdleMode; // Corrected path
-
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -25,7 +19,7 @@ public class Robot extends TimedRobot {
   private final Timer timer = new Timer();
   private final XboxController m_controller = new XboxController(0);
 
-  private final DoubleSolenoid m_doubleSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);;
+  private final DoubleSolenoid m_doubleSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);
   
   private final SparkMax m_leftMotor1 = new SparkMax(1, MotorType.kBrushed);
   private final SparkMax m_leftMotor2 = new SparkMax(2, MotorType.kBrushed);
@@ -36,37 +30,51 @@ public class Robot extends TimedRobot {
   private final SparkMaxConfig rightConfig = new SparkMaxConfig();
 
   private final DifferentialDrive m_robotDrive;
-  private boolean isAutonomousRan = false; 
 
   /** Called once at the beginning of the robot program. */
   public Robot() {
     leftConfig.follow(2, false);
     rightConfig.follow(4, false);
-
+  
     m_leftMotor1.configure(leftConfig, null, null);
     m_rightMotor3.configure(rightConfig, null, null);
-
+  
     m_robotDrive = new DifferentialDrive(m_leftMotor2::set, m_rightMotor4::set);
-
+  
     SendableRegistry.addChild(m_robotDrive, m_leftMotor2);
     SendableRegistry.addChild(m_robotDrive, m_rightMotor4);
   }
+  
   @Override
   public void autonomousInit() {
     timer.reset();
     timer.start();
+    // Ensure the solenoid starts in the retracted position for autonomous
+    m_doubleSolenoid.set(Value.kReverse); 
   }
+
   @Override
   public void autonomousPeriodic() {
-    if(!isAutonomousRan){
-      m_rightMotor4.set(0.3);
-      m_leftMotor2.set(0.3);
-      Timer.delay(3.0);
-      m_rightMotor4.set(0.0);
-      m_leftMotor2.set(0.0);
-      isAutonomousRan = true;
+    double time = timer.get(); // Get the current time for easier readability
+
+    // Phase 1: Spin for 2 seconds
+    if (time < 2.0) {
+      m_rightMotor4.set(0.3); // Adjust speed as needed
+      m_leftMotor2.set(0.3); // Adjust speed as needed
+      m_doubleSolenoid.set(Value.kReverse); // Keep solenoid retracted
+    } 
+    // Phase 2: Extend pneumatic for 1 second (from 2 to 3 seconds)
+    else if (time >= 2.0 && time < 3.0) {
+      m_rightMotor4.set(0.0); // Stop spinning
+      m_leftMotor2.set(0.0); // Stop spinning
+      m_doubleSolenoid.set(Value.kForward); // Extend the pneumatic
+    } 
+    // Phase 3: Retract pneumatic (from 3 seconds onwards)
+    else {
+      m_rightMotor4.set(0.0); // Keep motors stopped
+      m_leftMotor2.set(0.0); // Keep motors stopped
+      m_doubleSolenoid.set(Value.kReverse); // Retract the pneumatic
     }
-    
   }
 
   @Override
