@@ -13,6 +13,11 @@ import edu.wpi.first.util.sendable.SendableRegistry;
 // // Import enum for motor types, used when creating Spark motor controllers
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import frc.robot.PivotSubsystem;
+import frc.robot.Constants.pivotConstants;
+
+import java.lang.ModuleLayer.Controller;
+
 // // Import SparkMax class for controlling REV SparkMax motor controllers
 import com.revrobotics.spark.SparkMax;
 
@@ -72,6 +77,9 @@ public class Robot extends TimedRobot {
 
   // // Declare a DifferentialDrive object to control the robot drive
   private final DifferentialDrive m_robotDrive;
+
+  // // Declare controller for pivot system
+  private final static PivotSubsystem m_PivotSubsystem = new PivotSubsystem(); 
 
   /** // This is a Javadoc comment for the constructor
    * Called once at the beginning of the robot program.
@@ -161,6 +169,9 @@ public class Robot extends TimedRobot {
     // // Call method to check solenoid control based on button input
     controlSolenoid();
 
+    // //call method to intake pivot position 
+    controlPivot();
+
     // // Perform arcade drive using controller input: left stick X to turn,
     // // right trigger forward, left trigger reverse
     m_robotDrive.arcadeDrive(-m_controller.getLeftX(), 
@@ -183,6 +194,12 @@ public class Robot extends TimedRobot {
     else {
       // // Set solenoid to off (de-energized state)
       m_doubleSolenoid.set(Value.kOff);
+    }
+  }
+
+  private void controlPivot() {
+    if (m_controller.getXButtonPressed()) {
+      m_PivotSubsystem.pivotPIDControl(0.3);
     }
   }
 }

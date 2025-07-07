@@ -33,7 +33,7 @@ public class PivotSubsystem extends SubsystemBase {
         return m_absoluteEncoder.getPosition(); 
     } 
 
-    public void pivotDIPControl(double targetAngle) {
+    public void pivotPIDControl(double targetAngle) {
         pivotOutput = m_PIDController.calculate(m_absoluteEncoder.getPosition(), targetAngle);
         pivotMotor.set(pivotOutput);  
     }
