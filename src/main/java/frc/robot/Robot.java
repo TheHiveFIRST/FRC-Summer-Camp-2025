@@ -1,8 +1,8 @@
 package frc.robot;
 
 import edu.wpi.first.util.sendable.SendableRegistry;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
+// Removed SparkLowLevel.MotorType as it's not needed for Spark PWM controllers
+import com.revrobotics.spark.SparkMax; // Keep SparkMax if other SparkMax motors exist, or remove if not
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.motorcontrol.Spark; // This import is for the Spark PWM controller
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
@@ -19,9 +19,12 @@ public class Robot extends TimedRobot {
   private final Timer timer = new Timer();
   private final XboxController m_controller = new XboxController(0);
   private final DoubleSolenoid m_doubleSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);
-  private final SparkMax m_leftSparkMax = new SparkMax(1, MotorType.kBrushed);
+  
+  // Changed from SparkMax to Spark, using PWM ports 2 and 3
+  private final Spark m_leftSparkPWM_additional = new Spark(2); // Was m_leftSparkMax
+  private final Spark m_rightSparkPWM_additional = new Spark(3); // Was m_rightSparkMax
+
   private final Spark m_leftSparkPWM = new Spark(0);
-  private final SparkMax m_rightSparkMax = new SparkMax(3, MotorType.kBrushed);
   private final Spark m_rightSparkPWM = new Spark(1);
   private final WPI_TalonSRX m_armMotor = new WPI_TalonSRX(3);
   private final Encoder m_armEncoder = new Encoder(0, 1);
@@ -33,16 +36,19 @@ public class Robot extends TimedRobot {
    * Called once at the beginning of the robot program.
    */
   public Robot() {
-    m_leftMotors = new MotorControllerGroup(m_leftSparkMax, m_leftSparkPWM);
-    m_rightMotors = new MotorControllerGroup(m_rightSparkMax, m_rightSparkPWM);
+    // Now grouping all Spark PWM motors
+    m_leftMotors = new MotorControllerGroup(m_leftSparkPWM_additional, m_leftSparkPWM);
+    m_rightMotors = new MotorControllerGroup(m_rightSparkPWM_additional, m_rightSparkPWM);
 
     m_robotDrive = new DifferentialDrive(m_leftMotors, m_rightMotors);
 
     SendableRegistry.addChild(m_robotDrive, m_leftMotors);
     SendableRegistry.addChild(m_robotDrive, m_rightMotors);
-    SendableRegistry.addChild(m_leftSparkMax, m_leftSparkMax);
+    // Register the newly changed Spark motors
+    SendableRegistry.addChild(m_leftSparkPWM_additional, m_leftSparkPWM_additional);
+    SendableRegistry.addChild(m_rightSparkPWM_additional, m_rightSparkPWM_additional);
+    // Original Spark motors
     SendableRegistry.addChild(m_leftSparkPWM, m_leftSparkPWM);
-    SendableRegistry.addChild(m_rightSparkMax, m_rightSparkMax);
     SendableRegistry.addChild(m_rightSparkPWM, m_rightSparkPWM);
 
     SendableRegistry.addChild(m_armMotor, m_armMotor);
