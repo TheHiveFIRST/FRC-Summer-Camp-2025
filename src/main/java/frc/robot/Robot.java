@@ -1,8 +1,20 @@
 package frc.robot;
 
 import edu.wpi.first.util.sendable.SendableRegistry;
-// Removed SparkLowLevel.MotorType as it's not needed for Spark PWM controllers
-import com.revrobotics.spark.SparkMax; // Keep SparkMax if other SparkMax motors exist, or remove if not
+// // Import enum for motor types, used when creating Spark motor controllers
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+import frc.robot.PivotSubsystem;
+import frc.robot.Constants.pivotConstants;
+
+import java.lang.ModuleLayer.Controller;
+
+// // Import SparkMax class for controlling REV SparkMax motor controllers
+import com.revrobotics.spark.SparkMax;
+
+// // Import SparkMaxConfig class for configuring SparkMax controllers
+import com.revrobotics.spark.config.SparkMaxConfig;
+
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -32,9 +44,11 @@ public class Robot extends TimedRobot {
   private final MotorControllerGroup m_rightMotors;
   private final DifferentialDrive m_robotDrive;
 
-  /**
-   * Called once at the beginning of the robot program.
-   */
+
+  // // Declare controller for pivot system
+  private final static PivotSubsystem m_PivotSubsystem = new PivotSubsystem(); 
+ 
+   /* Called once at the beginning of the robot program. */
   public Robot() {
     // Now grouping all Spark PWM motors
     m_leftMotors = new MotorControllerGroup(m_leftSparkPWM_additional, m_leftSparkPWM);
@@ -86,6 +100,13 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     controlSolenoid();
 
+    // //call method to intake pivot position 
+    controlPivot();
+
+    // // Perform arcade drive using controller input: left stick X to turn,
+    // // right trigger forward, left trigger reverse
+    m_robotDrive.arcadeDrive(-m_controller.getLeftX(), 
+                              m_controller.getRightTriggerAxis() - m_controller.getLeftTriggerAxis());
     m_robotDrive.arcadeDrive(-m_controller.getLeftX(),
                              m_controller.getRightTriggerAxis() - m_controller.getLeftTriggerAxis());
 
@@ -101,4 +122,11 @@ public class Robot extends TimedRobot {
       m_doubleSolenoid.set(Value.kOff);
     }
   }
+  private void controlPivot() {
+    if (m_controller.getXButtonPressed()) {
+      m_PivotSubsystem.pivotPIDControl(0.3);
+    }
+  }
+}
+
 }
