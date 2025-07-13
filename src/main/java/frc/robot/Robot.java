@@ -1,21 +1,10 @@
 package frc.robot;
 
 import edu.wpi.first.util.sendable.SendableRegistry;
-// // Import enum for motor types, used when creating Spark motor controllers
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-
-import frc.robot.PivotSubsystem;
-import frc.robot.Constants.pivotConstants;
-
-import java.lang.ModuleLayer.Controller;
-
-// // Import SparkMax class for controlling REV SparkMax motor controllers
-import com.revrobotics.spark.SparkMax;
-
-// // Import SparkMaxConfig class for configuring SparkMax controllers
-import com.revrobotics.spark.config.SparkMaxConfig;
-
+// Removed SparkLowLevel.MotorType as it's not needed for Spark PWM controllers
+import com.revrobotics.spark.SparkMax; // Keep SparkMax if other SparkMax motors exist, or remove if not
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -39,16 +28,14 @@ public class Robot extends TimedRobot {
   private final Spark m_leftSparkPWM = new Spark(0);
   private final Spark m_rightSparkPWM = new Spark(1);
   private final WPI_TalonSRX m_armMotor = new WPI_TalonSRX(3);
-  private final Encoder m_armEncoder = new Encoder(0, 1);
+  private final DutyCycleEncoder m_armEncoder = new DutyCycleEncoder(0);
   private final MotorControllerGroup m_leftMotors;
   private final MotorControllerGroup m_rightMotors;
   private final DifferentialDrive m_robotDrive;
 
-
-  // // Declare controller for pivot system
-  private final static PivotSubsystem m_PivotSubsystem = new PivotSubsystem(); 
- 
-   /* Called once at the beginning of the robot program. */
+  /**
+   * Called once at the beginning of the robot program.
+   */
   public Robot() {
     // Now grouping all Spark PWM motors
     m_leftMotors = new MotorControllerGroup(m_leftSparkPWM_additional, m_leftSparkPWM);
@@ -74,7 +61,7 @@ public class Robot extends TimedRobot {
     timer.reset();
     timer.start();
     m_doubleSolenoid.set(Value.kReverse);
-    m_armEncoder.reset();
+    // m_armEncoder;
   }
 
   @Override
@@ -100,13 +87,10 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     controlSolenoid();
 
-    // //call method to intake pivot position 
-    controlPivot();
+    if (m_controller.getXButton()) {
+      System.out.println(m_armEncoder.get());
+    }
 
-    // // Perform arcade drive using controller input: left stick X to turn,
-    // // right trigger forward, left trigger reverse
-    m_robotDrive.arcadeDrive(-m_controller.getLeftX(), 
-                              m_controller.getRightTriggerAxis() - m_controller.getLeftTriggerAxis());
     m_robotDrive.arcadeDrive(-m_controller.getLeftX(),
                              m_controller.getRightTriggerAxis() - m_controller.getLeftTriggerAxis());
 
@@ -122,11 +106,4 @@ public class Robot extends TimedRobot {
       m_doubleSolenoid.set(Value.kOff);
     }
   }
-  private void controlPivot() {
-    if (m_controller.getXButtonPressed()) {
-      m_PivotSubsystem.pivotPIDControl(0.3);
-    }
-  }
-}
-
 }
