@@ -16,6 +16,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
+import edu.wpi.first.cameraserver.CameraServer;
+
 public class Robot extends TimedRobot {
   private final Timer timer = new Timer();
   private final XboxController m_controller = new XboxController(0);
@@ -40,6 +42,8 @@ public class Robot extends TimedRobot {
     // Now grouping all Spark PWM motors
     m_leftMotors = new MotorControllerGroup(m_leftSparkPWM_additional, m_leftSparkPWM);
     m_rightMotors = new MotorControllerGroup(m_rightSparkPWM_additional, m_rightSparkPWM);
+
+    CameraServer.startAutomaticCapture();
 
     m_robotDrive = new DifferentialDrive(m_leftMotors, m_rightMotors);
 
