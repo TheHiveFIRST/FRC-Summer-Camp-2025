@@ -16,7 +16,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
-import edu.wpi.first.cameraserver.CameraServer;
+// import edu.wpi.first.cameraserver.CameraServer;
 
 public class Robot extends TimedRobot {
   private final Timer timer = new Timer();
@@ -43,7 +43,7 @@ public class Robot extends TimedRobot {
     m_leftMotors = new MotorControllerGroup(m_leftSparkPWM_additional, m_leftSparkPWM);
     m_rightMotors = new MotorControllerGroup(m_rightSparkPWM_additional, m_rightSparkPWM);
 
-    CameraServer.startAutomaticCapture();
+    // CameraServer.startAutomaticCapture();
 
     m_robotDrive = new DifferentialDrive(m_leftMotors, m_rightMotors);
 
@@ -67,23 +67,17 @@ public class Robot extends TimedRobot {
     m_doubleSolenoid.set(Value.kReverse);
     // m_armEncoder;
   }
+  
 
-  @Override
   public void autonomousPeriodic() {
     double time = timer.get();
-
+  
     if (time < 2.0) {
-      m_robotDrive.arcadeDrive(0.3, 0.0);
-      m_doubleSolenoid.set(Value.kReverse);
-      m_armMotor.set(0.1);
-    } else if (time >= 2.0 && time < 3.0) {
-      m_robotDrive.stopMotor();
-      m_doubleSolenoid.set(Value.kForward);
-      m_armMotor.set(0.0);
+      // Drive forward at 40% speed, no turn
+      m_robotDrive.arcadeDrive(0.4, 0.0);
     } else {
+      // Stop the robot
       m_robotDrive.stopMotor();
-      m_doubleSolenoid.set(Value.kReverse);
-      m_armMotor.set(0.0);
     }
   }
 
